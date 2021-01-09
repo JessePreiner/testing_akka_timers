@@ -1,27 +1,27 @@
-package org.example;
+package com.jessepreiner.schedule.protocol.commands;
 
 import akka.actor.typed.ActorRef;
 
-public class RetrieveSchedule implements ScheduleBehavior.ScheduleCommand {
+public class RetrieveScheduleCommand implements Command {
     private final String scheduleId;
     private final ActorRef<Object> replyTo;
 
-    RetrieveSchedule(String scheduleId, ActorRef<Object> replyTo) {
+    public RetrieveScheduleCommand(String scheduleId, ActorRef<Object> replyTo) {
         this.scheduleId = scheduleId;
         this.replyTo = replyTo;
     }
 
-    String getScheduleId() {
+    public String getScheduleId() {
         return scheduleId;
     }
 
-    ActorRef<Object> getReplyTo() {
+    public ActorRef<Object> getReplyTo() {
         return replyTo;
     }
 
     @Override
     public String toString() {
-        return "RetrieveSchedule{" +
+        return "RetrieveScheduleCommand{" +
             "scheduleId='" + scheduleId + '\'' +
             ", replyTo=" + replyTo +
             '}';

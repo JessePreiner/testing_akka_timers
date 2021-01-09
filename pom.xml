@@ -5,12 +5,10 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.example</groupId>
-  <artifactId>akka-scheduler</artifactId>
+  <artifactId>akka-scheduling</artifactId>
   <version>1.0-SNAPSHOT</version>
 
-  <name>akka-scheduler</name>
-  <!-- FIXME change it to the project's website -->
-  <url>http://www.example.com</url>
+  <name>akka-scheduling</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

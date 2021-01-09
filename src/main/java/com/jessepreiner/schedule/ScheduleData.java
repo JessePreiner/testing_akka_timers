@@ -1,8 +1,8 @@
-package org.example;
+package com.jessepreiner.schedule;
 
 import java.time.LocalDateTime;
 
-class ScheduleData {
+public class ScheduleData {
     private final String scheduleId;
     private final LocalDateTime startTime;
     private final LocalDateTime endTime;
@@ -49,7 +49,7 @@ class ScheduleData {
         return status;
     }
 
-    static enum ScheduleStatus {
+    enum ScheduleStatus { // todo model with FSM
         Pending, Active, Revoked, Expired
     }
 }

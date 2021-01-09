@@ -1,29 +1,29 @@
-package org.example;
+package com.jessepreiner.schedule.protocol.commands;
 
 import java.time.LocalDateTime;
 
 import akka.actor.typed.ActorRef;
 
-class AddSchedule implements ScheduleBehavior.ScheduleCommand {
+public class AddScheduleCommand implements Command {
     private final LocalDateTime startTime;
     private final LocalDateTime endTime;
     private final ActorRef<Object> replyTo;
 
-    AddSchedule(LocalDateTime startTime, LocalDateTime endTime, ActorRef<Object> replyTo) {
+    public AddScheduleCommand(LocalDateTime startTime, LocalDateTime endTime, ActorRef<Object> replyTo) {
         this.startTime = startTime;
         this.endTime = endTime;
         this.replyTo = replyTo;
     }
 
-    LocalDateTime getStartTime() {
+    public LocalDateTime getStartTime() {
         return startTime;
     }
 
-    LocalDateTime getEndTime() {
+    public LocalDateTime getEndTime() {
         return endTime;
     }
 
-    ActorRef<Object> getReplyTo() {
+    public ActorRef<Object> getReplyTo() {
         return replyTo;
     }
 }
