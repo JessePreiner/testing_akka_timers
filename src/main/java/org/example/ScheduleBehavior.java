@@ -44,8 +44,8 @@ public class ScheduleBehavior extends AbstractBehavior<ScheduleCommand> {
     @SuppressWarnings("unused")
     private Behavior<ScheduleCommand> processReminders(ProcessReminders processReminders) {
         this.schedules.values().stream()
-                      .filter(x -> x.getStatus().equals(ScheduleData.ScheduleStatus.Pending))
-                      .forEach(x -> x.setStatus(ScheduleData.ScheduleStatus.Active));
+                      .filter(scheduleData -> scheduleData.getStatus().equals(ScheduleData.ScheduleStatus.Pending))
+                      .forEach(scheduleData -> scheduleData.setStatus(ScheduleData.ScheduleStatus.Active));
         return Behaviors.same();
     }
 
