@@ -1,4 +1,4 @@
-package com.jessepreiner.schedule.protocol.commands;
+package com.jessepreiner.scheduling.schedule.protocol.commands;
 
 import akka.actor.typed.ActorRef;
 

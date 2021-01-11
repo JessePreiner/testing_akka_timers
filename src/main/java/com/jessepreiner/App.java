@@ -2,23 +2,28 @@ package com.jessepreiner;
 
 import akka.actor.typed.ActorSystem;
 import akka.actor.typed.javadsl.AskPattern;
+import akka.actor.typed.receptionist.ServiceKey;
+import com.jessepreiner.scheduling.schedule.ScheduleActor;
+import com.jessepreiner.scheduling.schedule.ScheduleData;
+import com.jessepreiner.scheduling.schedule.ScheduleSupervisor;
+import com.jessepreiner.scheduling.schedule.protocol.commands.AddScheduleCommand;
+import com.jessepreiner.scheduling.schedule.protocol.commands.Command;
+import com.jessepreiner.scheduling.schedule.protocol.commands.RetrieveScheduleCommand;
+import com.jessepreiner.scheduling.schedule.protocol.events.ScheduleAddedEvent;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Scanner;
 
-import com.jessepreiner.schedule.protocol.events.ScheduleAddedEvent;
-import com.jessepreiner.schedule.ScheduleBehavior;
-import com.jessepreiner.schedule.ScheduleData;
-import com.jessepreiner.schedule.protocol.commands.AddScheduleCommand;
-import com.jessepreiner.schedule.protocol.commands.Command;
-import com.jessepreiner.schedule.protocol.commands.RetrieveScheduleCommand;
+import static com.jessepreiner.scheduling.schedule.ScheduleActor.*;
 
 public class App {
 
+    private static final Duration ASK_TIMEOUT = Duration.ofSeconds(5);
+
     public static void main(String[] args) {
-        ActorSystem<Command> guardian = ActorSystem.create(ScheduleBehavior.create(), "Empty");
         Scanner scanner = new Scanner(System.in);
+        ActorSystem<Command> guardian = ActorSystem.create(ScheduleSupervisor.create(), "Empty");
 
         /* todo
         - solidify protocol -> commands, events, responses, state, and boundaries
@@ -49,24 +54,6 @@ public class App {
         }
     }
 
-    private static void processGet(ActorSystem<Command> guardian, String commands) {
-        String[] commandParams = commands.split("\\|");
-
-        String scheduleId = commandParams[0];
-        AskPattern.ask(
-                guardian,
-                replyTo -> new RetrieveScheduleCommand(scheduleId, replyTo),
-                Duration.ofSeconds(2),
-                guardian.scheduler())
-                  .whenComplete((reply, failure) -> {
-                      if (reply instanceof ScheduleData) {
-                          System.out.println("Retrieved schedule " + reply.toString());
-                      } else if (failure != null) {
-                          System.out.println("Got failure " + failure.getMessage());
-                      }
-                  });
-    }
-
     private static void processAdd(ActorSystem<Command> guardian, String commands) {
         String[] commandParams = commands.split("\\|");
 
@@ -75,11 +62,31 @@ public class App {
         AskPattern.ask(
                 guardian,
                 replyTo -> new AddScheduleCommand(LocalDateTime.parse(startTime), LocalDateTime.parse(endTime), replyTo),
-                Duration.ofSeconds(2),
+                ASK_TIMEOUT,
+                guardian.scheduler()
+        ).whenComplete((reply, failure) -> {
+            if (reply instanceof ScheduleAddedEvent) {
+                System.out.println("Schedule added " + reply.toString());
+            } else if (failure != null) {
+                System.out.println("Got failure " + failure.getMessage());
+            }
+        });
+    }
+
+    private static void processGet(ActorSystem<Command> guardian, String commands) {
+        String[] commandParams = commands.split("\\|");
+
+        ServiceKey<Command> scheduleActorKey = ScheduleActor.scheduleActorKey;
+
+        String scheduleId = commandParams[0];
+        AskPattern.ask(
+                guardian,
+                replyTo -> new RetrieveScheduleCommand(scheduleId, replyTo),
+                ASK_TIMEOUT,
                 guardian.scheduler())
                   .whenComplete((reply, failure) -> {
-                      if (reply instanceof ScheduleAddedEvent) {
-                          System.out.println("Schedule added " + reply.toString());
+                      if (reply instanceof ScheduleData) {
+                          System.out.println("Retrieved schedule " + reply.toString());
                       } else if (failure != null) {
                           System.out.println("Got failure " + failure.getMessage());
                       }

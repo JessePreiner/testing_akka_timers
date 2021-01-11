@@ -1,4 +1,4 @@
-package com.jessepreiner.schedule;
+package com.jessepreiner.scheduling.schedule;
 
 import java.time.LocalDateTime;
 
