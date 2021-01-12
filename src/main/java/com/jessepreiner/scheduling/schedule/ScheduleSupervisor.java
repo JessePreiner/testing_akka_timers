@@ -8,14 +8,12 @@ import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
 import akka.actor.typed.javadsl.TimerScheduler;
 import akka.persistence.typed.PersistenceId;
-import com.jessepreiner.scheduling.schedule.protocol.commands.Command;
 import com.jessepreiner.scheduling.schedule.protocol.commands.AddScheduleCommand;
+import com.jessepreiner.scheduling.schedule.protocol.commands.Command;
 import com.jessepreiner.scheduling.schedule.protocol.commands.ProcessRemindersCommand;
 import com.jessepreiner.scheduling.schedule.protocol.events.ScheduleAddedEvent;
 
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 public class ScheduleSupervisor extends AbstractBehavior<Command> {
@@ -26,9 +24,6 @@ public class ScheduleSupervisor extends AbstractBehavior<Command> {
         timer.startTimerWithFixedDelay("ReminderKey", ProcessRemindersCommand.INSTANCE, Duration.ofSeconds(15));
     }
 
-    // TODO ScheduleData to schedule state w/ FSM
-    private final Map<String, ScheduleData> schedules = new HashMap<>();
-
     public static Behavior<Command> create() {
         return Behaviors.setup(context -> Behaviors.withTimers(timers -> new ScheduleSupervisor(timers, context)));
     }
@@ -37,17 +32,9 @@ public class ScheduleSupervisor extends AbstractBehavior<Command> {
     public Receive<Command> createReceive() {
         return newReceiveBuilder()
                 .onMessage(AddScheduleCommand.class, this::handleCreateSchedule)
-                .onMessage(ProcessRemindersCommand.class, this::processReminders)
                 .build();
     }
 
-    @SuppressWarnings("unused")
-    private Behavior<Command> processReminders(ProcessRemindersCommand processRemindersCommand) {
-        this.schedules.values().stream()
-                      .filter(scheduleData -> scheduleData.getStatus().equals(ScheduleData.ScheduleStatus.Pending))
-                      .forEach(scheduleData -> scheduleData.setStatus(ScheduleData.ScheduleStatus.Active));
-        return Behaviors.same();
-    }
 
     private Behavior<Command> handleCreateSchedule(AddScheduleCommand addSchedule) {
         String scheduleId = UUID.randomUUID().toString();

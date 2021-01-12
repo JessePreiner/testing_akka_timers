@@ -1,29 +1,17 @@
 package com.jessepreiner;
 
-import akka.actor.typed.ActorSystem;
-import akka.actor.typed.javadsl.AskPattern;
-import akka.actor.typed.receptionist.ServiceKey;
-import com.jessepreiner.scheduling.schedule.ScheduleActor;
-import com.jessepreiner.scheduling.schedule.ScheduleData;
-import com.jessepreiner.scheduling.schedule.ScheduleSupervisor;
-import com.jessepreiner.scheduling.schedule.protocol.commands.AddScheduleCommand;
-import com.jessepreiner.scheduling.schedule.protocol.commands.Command;
-import com.jessepreiner.scheduling.schedule.protocol.commands.RetrieveScheduleCommand;
-import com.jessepreiner.scheduling.schedule.protocol.events.ScheduleAddedEvent;
+import com.jessepreiner.scheduling.AkkaSchedulingService;
+import com.jessepreiner.scheduling.SchedulingService;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Scanner;
 
-import static com.jessepreiner.scheduling.schedule.ScheduleActor.*;
-
 public class App {
 
-    private static final Duration ASK_TIMEOUT = Duration.ofSeconds(5);
+    private static final SchedulingService schedulingService = new AkkaSchedulingService();
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        ActorSystem<Command> guardian = ActorSystem.create(ScheduleSupervisor.create(), "Empty");
 
         /* todo
         - solidify protocol -> commands, events, responses, state, and boundaries
@@ -43,9 +31,9 @@ public class App {
                 String[] commandParams = line.split("_");
                 String command = commandParams[0];
                 if (command.equalsIgnoreCase("add")) {
-                    processAdd(guardian, commandParams[1]);
+                    processAdd(commandParams[1]);
                 } else if (command.equalsIgnoreCase("get")) {
-                    processGet(guardian, commandParams[1]);
+                    processGet(commandParams[1]);
                 }
 
             } catch (Exception e) {
@@ -54,43 +42,17 @@ public class App {
         }
     }
 
-    private static void processAdd(ActorSystem<Command> guardian, String commands) {
+    private static void processAdd(String commands) {
         String[] commandParams = commands.split("\\|");
 
         String startTime = commandParams[0];
         String endTime = commandParams[1];
-        AskPattern.ask(
-                guardian,
-                replyTo -> new AddScheduleCommand(LocalDateTime.parse(startTime), LocalDateTime.parse(endTime), replyTo),
-                ASK_TIMEOUT,
-                guardian.scheduler()
-        ).whenComplete((reply, failure) -> {
-            if (reply instanceof ScheduleAddedEvent) {
-                System.out.println("Schedule added " + reply.toString());
-            } else if (failure != null) {
-                System.out.println("Got failure " + failure.getMessage());
-            }
-        });
+        schedulingService.addSchedule(LocalDateTime.parse(startTime), LocalDateTime.parse(endTime)).thenAccept(System.out::println);
     }
 
-    private static void processGet(ActorSystem<Command> guardian, String commands) {
+    private static void processGet(String commands) {
         String[] commandParams = commands.split("\\|");
-
-        ServiceKey<Command> scheduleActorKey = ScheduleActor.scheduleActorKey;
-
-        String scheduleId = commandParams[0];
-        AskPattern.ask(
-                guardian,
-                replyTo -> new RetrieveScheduleCommand(scheduleId, replyTo),
-                ASK_TIMEOUT,
-                guardian.scheduler())
-                  .whenComplete((reply, failure) -> {
-                      if (reply instanceof ScheduleData) {
-                          System.out.println("Retrieved schedule " + reply.toString());
-                      } else if (failure != null) {
-                          System.out.println("Got failure " + failure.getMessage());
-                      }
-                  });
+        schedulingService.getSchedule(commandParams[0]);
     }
 
 }

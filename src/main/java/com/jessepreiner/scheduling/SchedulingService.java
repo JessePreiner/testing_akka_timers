@@ -1,16 +1,23 @@
 package com.jessepreiner.scheduling;
 
 import java.time.LocalDateTime;
+import java.util.concurrent.CompletionStage;
 
-interface SchedulingService {
-    public ScheduleServiceResult addSchedule(String scheduleId, LocalDateTime startTime, LocalDateTime endTime);
-    public ScheduleServiceResult getSchedule(String scheduleId);
+public interface SchedulingService {
+    CompletionStage<ScheduleServiceResult> addSchedule(LocalDateTime startTime, LocalDateTime endTime);
+    CompletionStage<ScheduleServiceResult> getSchedule(String scheduleId);
 }
 
-abstract class ScheduleServiceResult {
-}
+class SuccessfulScheduleServiceResult<T> extends ScheduleServiceResult {
+    private final T response;
 
-class SuccessfulScheduleServiceResult extends ScheduleServiceResult {
+    SuccessfulScheduleServiceResult(T response) {
+        this.response = response;
+    }
+
+    T getResponse() {
+        return this.response;
+    }
 }
 
 class FailureScheduleServiceResult extends ScheduleServiceResult {
