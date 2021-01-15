@@ -1,4 +1,4 @@
 package com.jessepreiner.scheduling;
 
-abstract class ScheduleServiceResult {
+public abstract class ScheduleServiceResult {
 }

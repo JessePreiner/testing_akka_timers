@@ -16,7 +16,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <scala.binary.version>2.12</scala.binary.version>
         <akka.version>2.6.9</akka.version>
-
+        <akka-persistence-cassandra.version>1.0.4</akka-persistence-cassandra.version>
     </properties>
 
     <dependencies>
@@ -39,6 +39,12 @@
         </dependency>
         <dependency>
             <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-persistence-cassandra_${scala.binary.version}</artifactId>
+            <version>${akka-persistence-cassandra.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-serialization-jackson_${scala.binary.version}</artifactId>
             <version>${akka.version}</version>
         </dependency>
@@ -56,6 +62,11 @@
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-cluster_${scala.binary.version}</artifactId>
             <version>${akka.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.2.3</version>
         </dependency>
 
     </dependencies>

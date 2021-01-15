@@ -1,8 +1,9 @@
 package com.jessepreiner.scheduling.schedule.protocol.state;
 
 import com.jessepreiner.scheduling.schedule.ScheduleData;
+import com.jessepreiner.scheduling.schedule.protocol.JsonSerializable;
 
-public class State {
+public class State implements JsonSerializable {
     private final ScheduleData scheduleData;
 
     public State(ScheduleData scheduleData) {

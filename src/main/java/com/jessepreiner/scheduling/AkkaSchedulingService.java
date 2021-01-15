@@ -15,7 +15,7 @@ import java.util.concurrent.CompletionStage;
 
 public class AkkaSchedulingService implements SchedulingService {
     private static final Duration ASK_TIMEOUT = Duration.ofSeconds(5);
-    private ActorSystem<Command> guardian = ActorSystem.create(ScheduleSupervisor.create(), "Empty");
+    private ActorSystem<Command> guardian = ActorSystem.create(ScheduleSupervisor.create(), "ScheduleSystem");
 
     @Override
     public CompletionStage<ScheduleServiceResult> addSchedule(LocalDateTime startTime, LocalDateTime endTime) {

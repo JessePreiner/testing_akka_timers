@@ -1,8 +1,10 @@
 package com.jessepreiner.scheduling.schedule;
 
+import com.jessepreiner.scheduling.schedule.protocol.JsonSerializable;
+
 import java.time.LocalDateTime;
 
-public class ScheduleData {
+public class ScheduleData implements JsonSerializable {
     private final String scheduleId;
     private final LocalDateTime startTime;
     private final LocalDateTime endTime;

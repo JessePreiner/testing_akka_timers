@@ -21,7 +21,7 @@ public class ScheduleSupervisor extends AbstractBehavior<Command> {
     private ScheduleSupervisor(final TimerScheduler<Command> timer, final ActorContext<Command> context) {
         super(context);
         // todo move this to diff actor
-        timer.startTimerWithFixedDelay("ReminderKey", ProcessRemindersCommand.INSTANCE, Duration.ofSeconds(15));
+        //timer.startTimerWithFixedDelay("ReminderKey", ProcessRemindersCommand.INSTANCE, Duration.ofSeconds(15));
     }
 
     public static Behavior<Command> create() {
@@ -39,13 +39,12 @@ public class ScheduleSupervisor extends AbstractBehavior<Command> {
     private Behavior<Command> handleCreateSchedule(AddScheduleCommand addSchedule) {
         String scheduleId = UUID.randomUUID().toString();
         ScheduleData scheduleData = ScheduleData.newSchedule(scheduleId, addSchedule.getStartTime(), addSchedule.getEndTime());
-        Behavior<Command> behavior = ScheduleActor.create(PersistenceId.ofUniqueId(scheduleId), scheduleData);
+        Behavior<Command> behavior = ScheduleActor.create(PersistenceId.ofUniqueId(scheduleId), scheduleData, addSchedule.getReplyTo());
 
         getContext().spawn(
-                Behaviors.supervise(behavior).onFailure(SupervisorStrategy.restart()),
+                Behaviors.supervise(behavior).onFailure(SupervisorStrategy.restart().withLimit(10, Duration.ofMinutes(1))),
                 "schedule-" + scheduleId);
 
-        addSchedule.getReplyTo().tell(new ScheduleAddedEvent(scheduleData));
         return Behaviors.same();
     }
 }

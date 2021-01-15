@@ -1,4 +1,6 @@
 package com.jessepreiner.scheduling.schedule.protocol.commands;
 
-public interface Command {
+import com.jessepreiner.scheduling.schedule.protocol.JsonSerializable;
+
+public interface Command extends JsonSerializable {
 }

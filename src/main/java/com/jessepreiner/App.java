@@ -52,7 +52,7 @@ public class App {
 
     private static void processGet(String commands) {
         String[] commandParams = commands.split("\\|");
-        schedulingService.getSchedule(commandParams[0]);
+        schedulingService.getSchedule(commandParams[0]).thenAccept(System.out::println);
     }
 
 }
