@@ -3,6 +3,7 @@ package com.jessepreiner;
 import akka.Done;
 import akka.actor.typed.ActorSystem;
 import akka.actor.typed.javadsl.Behaviors;
+import akka.persistence.cassandra.query.javadsl.CassandraReadJournal;
 import akka.persistence.query.Offset;
 import akka.persistence.query.journal.leveldb.javadsl.LeveldbReadJournal;
 import akka.projection.eventsourced.EventEnvelope;
@@ -61,7 +62,7 @@ public class App {
     private static void startProjection() {
         SourceProvider<Offset, EventEnvelope<Event>> sourceProvider =
                 EventSourcedProvider.eventsByTag(
-                        scheduleSystem, LeveldbReadJournal.Identifier(), ScheduleTags.SINGLE);
+                        scheduleSystem, CassandraReadJournal.Identifier(), ScheduleTags.SINGLE);
 
     }
 
