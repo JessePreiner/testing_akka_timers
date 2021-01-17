@@ -18,21 +18,26 @@ import com.jessepreiner.scheduling.schedule.protocol.events.Event;
 import com.jessepreiner.scheduling.schedule.protocol.events.ScheduleAddedEvent;
 import com.jessepreiner.scheduling.schedule.protocol.state.State;
 
+import java.util.Collections;
+import java.util.Set;
+
 public class ScheduleActor extends EventSourcedBehavior<Command, Event, State> {
 
     public static final EntityTypeKey<Command> ENTITY_TYPE_KEY =
             EntityTypeKey.create(Command.class, "ScheduleActor");
 
     private final ActorContext<Command> context;
+    private String projectionTag;
 
-    private ScheduleActor(PersistenceId persistenceId, ActorContext<Command> ctx) {
+    private ScheduleActor(PersistenceId persistenceId, ActorContext<Command> context, String projectionTag) {
         super(persistenceId);
-        context = ctx;
-        context.log().info("Creating actor " + persistenceId);
+        this.projectionTag = projectionTag;
+        this.context = context;
+        this.context.log().info("Creating actor " + persistenceId);
     }
 
-    public static Behavior<Command> create(PersistenceId persistenceId) {
-        return Behaviors.setup(context -> new ScheduleActor(persistenceId, context));
+    public static Behavior<Command> create(PersistenceId persistenceId, String projectionTag) {
+        return Behaviors.setup(context -> new ScheduleActor(persistenceId, context, projectionTag));
     }
 
     @Override
@@ -44,6 +49,11 @@ public class ScheduleActor extends EventSourcedBehavior<Command, Event, State> {
     @Override
     public State emptyState() {
         return null;
+    }
+
+    @Override
+    public Set<String> tagsFor(Event event) {
+        return Collections.singleton(projectionTag);
     }
 
     @Override

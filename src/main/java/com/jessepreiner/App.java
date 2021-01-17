@@ -1,24 +1,40 @@
 package com.jessepreiner;
 
+import akka.Done;
+import akka.actor.typed.ActorSystem;
+import akka.actor.typed.javadsl.Behaviors;
+import akka.persistence.query.Offset;
+import akka.persistence.query.journal.leveldb.javadsl.LeveldbReadJournal;
+import akka.projection.eventsourced.EventEnvelope;
+import akka.projection.eventsourced.javadsl.EventSourcedProvider;
+import akka.projection.javadsl.Handler;
+import akka.projection.javadsl.SourceProvider;
 import com.jessepreiner.scheduling.AkkaSchedulingService;
-import com.jessepreiner.scheduling.SchedulingService;
+import com.jessepreiner.scheduling.schedule.ScheduleTags;
+import com.jessepreiner.scheduling.schedule.protocol.commands.Command;
+import com.jessepreiner.scheduling.schedule.protocol.events.Event;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.util.Scanner;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 public class App {
 
-    private static final SchedulingService schedulingService = new AkkaSchedulingService();
+    private static final ActorSystem<Command> scheduleSystem = ActorSystem.create(Behaviors.empty(), "ScheduleSystem");
+    private static AkkaSchedulingService schedulingService = new AkkaSchedulingService(scheduleSystem);
 
     public static void main(String[] args) {
+        startProjection();
         Scanner scanner = new Scanner(System.in);
 
         /* todo
-        - solidify protocol -> commands, events, responses, state, and boundaries
-        - one actor per schedule
-        - schedule supervisor restarts schedule
-        - introduce persistence + sharding
+        - solidify protocol -> commands, events, responses, state, and boundaries\
+        - schedule supervisor restarts schedule\
         - akka projection for schedule readside
+            - serve http GET
 
         - are schedule reminders state within a schedule, or separate?
         - well-defined ports into system
@@ -42,6 +58,13 @@ public class App {
         }
     }
 
+    private static void startProjection() {
+        SourceProvider<Offset, EventEnvelope<Event>> sourceProvider =
+                EventSourcedProvider.eventsByTag(
+                        scheduleSystem, LeveldbReadJournal.Identifier(), ScheduleTags.SINGLE);
+
+    }
+
     private static void processAdd(String commands) {
         String[] commandParams = commands.split("\\|");
 
@@ -53,6 +76,17 @@ public class App {
     private static void processGet(String commands) {
         String[] commandParams = commands.split("\\|");
         schedulingService.getSchedule(commandParams[0]).thenAccept(System.out::println);
+    }
+
+    static class ScheduleEventHandler extends Handler<EventEnvelope<Event>> {
+
+        private static final Logger LOGGER = LoggerFactory.getLogger(ScheduleEventHandler.class);
+
+        @Override
+        public CompletionStage<Done> process(EventEnvelope<Event> eventEventEnvelope) {
+            LOGGER.info("Handling " + eventEventEnvelope.toString());
+            return CompletableFuture.completedFuture(Done.getInstance());
+        }
     }
 
 }

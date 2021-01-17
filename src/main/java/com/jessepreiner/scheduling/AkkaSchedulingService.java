@@ -1,13 +1,13 @@
 package com.jessepreiner.scheduling;
 
 import akka.actor.typed.ActorSystem;
-import akka.actor.typed.javadsl.Behaviors;
 import akka.cluster.sharding.typed.javadsl.ClusterSharding;
 import akka.cluster.sharding.typed.javadsl.Entity;
 import akka.cluster.sharding.typed.javadsl.EntityRef;
 import akka.persistence.typed.PersistenceId;
 import com.jessepreiner.scheduling.schedule.ScheduleActor;
 import com.jessepreiner.scheduling.schedule.ScheduleData;
+import com.jessepreiner.scheduling.schedule.ScheduleTags;
 import com.jessepreiner.scheduling.schedule.protocol.commands.AddScheduleCommand;
 import com.jessepreiner.scheduling.schedule.protocol.commands.Command;
 import com.jessepreiner.scheduling.schedule.protocol.commands.RetrieveScheduleCommand;
@@ -27,20 +27,20 @@ public class AkkaSchedulingService implements SchedulingService {
     private static final Logger LOGGER = LoggerFactory.getLogger(AkkaSchedulingService.class);
     private final ClusterSharding sharding;
 
-    public AkkaSchedulingService() {
-        this(ActorSystem.create(Behaviors.empty(), "ScheduleSystem"));
-    }
-
-    private AkkaSchedulingService(ActorSystem<Command> guardian) {
+    public AkkaSchedulingService(ActorSystem<Command> guardian) {
         sharding = ClusterSharding.get(guardian);
 
         sharding.init(
                 Entity.of(
                         ENTITY_TYPE_KEY,
-                        entityContext ->
-                                ScheduleActor.create(
-                                        PersistenceId.of(
-                                                entityContext.getEntityTypeKey().name(), entityContext.getEntityId()))));
+                        entityContext -> {
+                            int tagIndex = Math.abs(entityContext.getEntityId().hashCode() % ScheduleTags.TAGS.length);
+                            return ScheduleActor.create(PersistenceId.of(
+                                    entityContext.getEntityTypeKey().name(),
+                                    entityContext.getEntityId()),
+                                    ScheduleTags.TAGS[tagIndex]
+                            );
+                        }));
     }
 
     @Override

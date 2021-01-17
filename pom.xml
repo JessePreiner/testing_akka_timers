@@ -17,6 +17,7 @@
         <scala.binary.version>2.12</scala.binary.version>
         <akka.version>2.6.9</akka.version>
         <akka-persistence-cassandra.version>1.0.4</akka-persistence-cassandra.version>
+        <akka-projection-core.version>1.0.0</akka-projection-core.version>
     </properties>
 
     <dependencies>
@@ -41,6 +42,16 @@
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-persistence-cassandra_${scala.binary.version}</artifactId>
             <version>${akka-persistence-cassandra.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.lightbend.akka</groupId>
+            <artifactId>akka-projection-core_${scala.binary.version}</artifactId>
+            <version>${akka-projection-core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.lightbend.akka</groupId>
+            <artifactId>akka-projection-eventsourced_${scala.binary.version}</artifactId>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.fusesource.leveldbjni</groupId>
@@ -89,9 +100,20 @@
                     <version>3.0.2</version>
                 </plugin>
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.8.0</version>
+                    <version>3.8.1</version>
+                    <configuration>
+                        <source>1.8</source>
+                        <target>1.8</target>
+                        <compilerArgs>
+                            <arg>-Xlint:unchecked</arg>
+                            <arg>-Xlint:deprecation</arg>
+                            <arg>-parameters</arg>
+                        </compilerArgs>
+                    </configuration>
                 </plugin>
+
                 <plugin>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.22.1</version>
