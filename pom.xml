@@ -42,7 +42,11 @@
             <artifactId>akka-persistence-cassandra_${scala.binary.version}</artifactId>
             <version>${akka-persistence-cassandra.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.fusesource.leveldbjni</groupId>
+            <artifactId>leveldbjni-all</artifactId>
+            <version>1.8</version>
+        </dependency>
         <dependency>
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-serialization-jackson_${scala.binary.version}</artifactId>

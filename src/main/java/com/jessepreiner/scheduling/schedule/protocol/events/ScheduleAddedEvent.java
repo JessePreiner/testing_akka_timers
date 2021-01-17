@@ -1,5 +1,6 @@
 package com.jessepreiner.scheduling.schedule.protocol.events;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.jessepreiner.scheduling.schedule.ScheduleData;
 
 import java.util.Objects;
@@ -8,6 +9,7 @@ public class ScheduleAddedEvent implements Event {
 
     private final ScheduleData scheduleData;
 
+    @JsonCreator
     public ScheduleAddedEvent(ScheduleData scheduleData) {
         this.scheduleData = scheduleData;
     }
