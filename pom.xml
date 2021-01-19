@@ -58,6 +58,21 @@
             <artifactId>akka-projection-cassandra_${scala.binary.version}</artifactId>
             <version>1.0.0</version>
         </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.lightbend.akka</groupId>-->
+            <!--<artifactId>akka-projection-slick_${scala.binary.version}</artifactId>-->
+            <!--<version>1.0.0</version>-->
+        <!--</dependency>-->
+        <dependency>
+            <groupId>com.lightbend.akka</groupId>
+            <artifactId>akka-projection-jdbc_${scala.binary.version}</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.22</version>
+        </dependency>
         <dependency>
             <groupId>org.fusesource.leveldbjni</groupId>
             <artifactId>leveldbjni-all</artifactId>
@@ -87,6 +102,11 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>1.2.3</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.persistence</groupId>
+            <artifactId>javax.persistence-api</artifactId>
+            <version>2.2</version>
         </dependency>
 
     </dependencies>

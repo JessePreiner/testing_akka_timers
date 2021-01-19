@@ -25,7 +25,7 @@ public class ScheduleData implements JsonSerializable {
         this.status = status;
     }
 
-    String getScheduleId() {
+    public String getScheduleId() {
         return scheduleId;
     }
 
@@ -47,11 +47,11 @@ public class ScheduleData implements JsonSerializable {
             '}';
     }
 
-    ScheduleStatus getStatus() {
+    public ScheduleStatus getStatus() {
         return status;
     }
 
-    enum ScheduleStatus { // todo model with FSM
+    public enum ScheduleStatus { // todo model with FSM
         Pending, Active, Revoked, Expired
     }
 }

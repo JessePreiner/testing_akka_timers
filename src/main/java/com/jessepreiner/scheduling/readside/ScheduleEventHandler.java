@@ -1,28 +1,34 @@
 package com.jessepreiner.scheduling.readside;
 
-import akka.Done;
 import akka.projection.eventsourced.EventEnvelope;
-import akka.projection.javadsl.Handler;
-import com.jessepreiner.App;
+import akka.projection.jdbc.javadsl.JdbcHandler;
 import com.jessepreiner.scheduling.schedule.protocol.events.Event;
+import com.jessepreiner.scheduling.schedule.protocol.events.ScheduleAddedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-
-public class ScheduleEventHandler extends Handler<EventEnvelope<Event>> {
+public class ScheduleEventHandler extends JdbcHandler<EventEnvelope<Event>, PlainJdbcSession> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ScheduleEventHandler.class);
     private final String tag;
+    private final MySqlScheduleProjectionDao repo;
 
-    public ScheduleEventHandler(String tag) {
+    ScheduleEventHandler(String tag) {
         this.tag = tag;
+        repo = new MySqlScheduleProjectionDao();
     }
 
+
     @Override
-    public CompletionStage<Done> process(EventEnvelope<Event> eventEventEnvelope) {
-        LOGGER.info("Handling {} of type {}",  eventEventEnvelope.toString(), eventEventEnvelope.event().getClass());
-        return CompletableFuture.completedFuture(Done.getInstance());
+    public void process(PlainJdbcSession session, EventEnvelope<Event> eventEventEnvelope) {
+        LOGGER.info("Handling {} of type {}", eventEventEnvelope.toString(), eventEventEnvelope.event().getClass());
+
+        if (eventEventEnvelope.event() instanceof ScheduleAddedEvent) {
+            ScheduleAddedEvent scheduleAddedEvent = (ScheduleAddedEvent) eventEventEnvelope.event();
+            LOGGER.info("Saving to schedule projection for event {}", scheduleAddedEvent);
+            repo.save(new MySqlScheduleProjectionDao.ScheduleProjectionRecord(scheduleAddedEvent.getScheduleData().getScheduleId(), scheduleAddedEvent.getScheduleData().getStatus().name()), session);
+        }
+
+
     }
 }

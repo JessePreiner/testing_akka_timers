@@ -1,8 +1,10 @@
 package com.jessepreiner.scheduling;
 
+import com.jessepreiner.scheduling.schedule.protocol.JsonSerializable;
+
 import java.util.Objects;
 
-public abstract class ScheduleServiceResult {
+public abstract class ScheduleServiceResult implements JsonSerializable {
     private final Object response;
 
     ScheduleServiceResult(Object response) {

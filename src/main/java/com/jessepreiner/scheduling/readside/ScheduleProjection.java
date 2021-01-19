@@ -7,12 +7,12 @@ import akka.persistence.cassandra.query.javadsl.CassandraReadJournal;
 import akka.persistence.query.Offset;
 import akka.projection.ProjectionBehavior;
 import akka.projection.ProjectionId;
-import akka.projection.cassandra.javadsl.CassandraProjection;
 import akka.projection.eventsourced.EventEnvelope;
 import akka.projection.eventsourced.javadsl.EventSourcedProvider;
-import akka.projection.javadsl.AtLeastOnceProjection;
+import akka.projection.javadsl.ExactlyOnceProjection;
 import akka.projection.javadsl.SourceProvider;
-import com.jessepreiner.App;
+import akka.projection.jdbc.javadsl.JdbcHandler;
+import akka.projection.jdbc.javadsl.JdbcProjection;
 import com.jessepreiner.scheduling.schedule.ScheduleTags;
 import com.jessepreiner.scheduling.schedule.protocol.events.Event;
 
@@ -30,9 +30,7 @@ public class ScheduleProjection {
                                     Optional.of(ProjectionBehavior.stopMessage()));
     }
 
-    // todo play with other service levels
-    private static AtLeastOnceProjection<Offset, EventEnvelope<Event>>
-    createProjectionFor(ActorSystem<?> system, int index) {
+    private static ExactlyOnceProjection<Offset, EventEnvelope<Event>> createProjectionFor(ActorSystem<?> system, int index) {
         String tag = ScheduleTags.TAGS[index];
 
         SourceProvider<Offset, EventEnvelope<Event>> sourceProvider =
@@ -41,9 +39,13 @@ public class ScheduleProjection {
                         CassandraReadJournal.Identifier(),
                         tag);
 
-        return CassandraProjection.atLeastOnce(
-                ProjectionId.of("ScheduleProjection", tag),
+        return JdbcProjection.exactlyOnce(
+                ProjectionId.of("ScheduleProjectionRecord", tag),
                 sourceProvider,
-                () -> new ScheduleEventHandler(tag));
+                JdbcSessionFactory::newInstance,
+                () -> new ScheduleEventHandler(tag),
+                system);
     }
+
+
 }

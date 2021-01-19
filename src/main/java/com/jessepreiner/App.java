@@ -1,23 +1,15 @@
 package com.jessepreiner;
 
-import akka.Done;
 import akka.actor.typed.ActorSystem;
 import akka.actor.typed.javadsl.Behaviors;
-import akka.projection.eventsourced.EventEnvelope;
-import akka.projection.javadsl.Handler;
 import akka.stream.alpakka.cassandra.javadsl.CassandraSession;
 import akka.stream.alpakka.cassandra.javadsl.CassandraSessionRegistry;
 import com.jessepreiner.scheduling.AkkaSchedulingService;
 import com.jessepreiner.scheduling.readside.ScheduleProjection;
 import com.jessepreiner.scheduling.schedule.protocol.commands.Command;
-import com.jessepreiner.scheduling.schedule.protocol.events.Event;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.util.Scanner;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 
 public class App {
 
@@ -57,14 +49,13 @@ public class App {
     }
 
     private static void startProjection(ActorSystem actorSystem) {
-        CassandraSession session =
-                CassandraSessionRegistry.get(actorSystem).sessionFor("akka.persistence.cassandra");
-// use same keyspace for the item_popularity table as the offset store
-        String projectionKeyspace =
-                actorSystem.settings().config().getString("akka.projection.cassandra.offset-store.keyspace");
-
+//        CassandraSession session =
+//                CassandraSessionRegistry.get(actorSystem).sessionFor("akka.persistence.cassandra");
+//        // use same keyspace for the item_popularity table as the offset store
+//        String projectionKeyspace =
+//                actorSystem.settings().config().getString("akka.projection.cassandra.offset-store.keyspace");
+//
         ScheduleProjection.init(actorSystem);
-
     }
 
     private static void processAdd(String commands) {
